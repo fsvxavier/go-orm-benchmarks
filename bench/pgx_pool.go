@@ -1,10 +1,14 @@
 package bench
 
 import (
-	"github.com/efectn/go-orm-benchmarks/helper"
-	pgxdb "github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"crypto/tls"
+	"os"
 	"testing"
+	"time"
+
+	"github.com/efectn/go-orm-benchmarks/helper"
+	pgxdb "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type PgxPool struct {
@@ -22,7 +26,32 @@ func (pgx *PgxPool) Name() string {
 
 func (pgx *PgxPool) Init() error {
 	var err error
-	pgx.conn, err = pgxpool.Connect(ctx, helper.OrmSource)
+
+	config, err := pgxpool.ParseConfig(helper.OrmSource)
+	if err != nil {
+		return err
+	}
+
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	config.ConnConfig.TLSConfig = tlsConfig
+
+	config.ConnConfig.RuntimeParams["timezone"] = "UTC"
+	if os.Getenv("DB_QUERY_MODE_EXEC") == "SIMPLE_PROTOCOL" {
+		config.ConnConfig.DefaultQueryExecMode = pgxdb.QueryExecModeSimpleProtocol
+	} else {
+		config.ConnConfig.DefaultQueryExecMode = pgxdb.QueryExecModeExec
+	}
+
+	// Creates a new pool with the given configuration.
+	// MaxConns is the maximum size of the pool. The default is the greater of 4 or runtime.NumCPU().
+	config.MaxConns = 200
+	config.MinConns = 20
+	config.MaxConnLifetime = time.Second * 9
+	config.MaxConnIdleTime = time.Second * 3
+
+	pgx.conn, err = pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return err
 	}

@@ -2,9 +2,11 @@ package bench
 
 import (
 	"database/sql"
-	"github.com/efectn/go-orm-benchmarks/helper"
 	"strconv"
 	"testing"
+	"time"
+
+	"github.com/efectn/go-orm-benchmarks/helper"
 )
 
 const (
@@ -31,10 +33,16 @@ func (raw *Raw) Name() string {
 
 func (raw *Raw) Init() error {
 	var err error
-	raw.conn, err = sql.Open("pgx", helper.OrmSource)
+	db, err := sql.Open("pgx", helper.OrmSource)
 	if err != nil {
 		return err
 	}
+
+	db.SetMaxOpenConns(200)
+	db.SetMaxIdleConns(20)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	raw.conn = db
 
 	return nil
 }

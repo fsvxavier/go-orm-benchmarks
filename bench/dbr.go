@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	dbrware "github.com/gocraft/dbr/v2"
-	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var columns = []string{"name", "title", "fax", "web", "age", "right", "counter"}

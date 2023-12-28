@@ -2,7 +2,7 @@ package bench
 
 import (
 	"github.com/efectn/go-orm-benchmarks/helper"
-	pgxdb "github.com/jackc/pgx/v4"
+	pgxdb "github.com/jackc/pgx/v5"
 	"testing"
 )
 

@@ -5,7 +5,7 @@ import (
 	"github.com/efectn/go-orm-benchmarks/helper"
 	"testing"
 
-	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/lib/pq"
 	gorpware "gopkg.in/gorp.v1"
 )
